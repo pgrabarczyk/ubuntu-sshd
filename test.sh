@@ -1,16 +1,10 @@
-# ubuntu-sshd-dbt
+#!/usr/bin/env bash
+set -eu -o pipefail -E
 
-# Prerequisites 
+docker stop $(docker ps -a -q) || true
+docker rm $(docker ps -a -q) || true
+docker rmi "${IMAGE_NAME}" || true
 
-## Generate SSH keys
-```bash
-# Execute from repo dir
-# should generate docker_key & docker_key.pub
-ssh-keygen -q -t ecdsa -b 521 -N '' -f "$(pwd)/ssh_keys/docker_key" <<<y >/dev/null 2>&1 
-```
-
-# Build image & run
-```bash
 export IMAGE_NAME='ubuntu_sshd_dbt'
 export IMAGE_SSH_USERNAME='ubuntu'
 export CONTAINER_NAME='ubuntu_sshd_dbt'
@@ -20,22 +14,5 @@ export CONTAINER_ID="$(docker ps | grep -i $IMAGE_NAME | awk '{print $1}')"
 export CONTAINER_IP="$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CONTAINER_ID)"
 ssh-keygen -f "/home/pgrabarczyk/.ssh/known_hosts" -R "${CONTAINER_IP}" || true # delete from known_hosts if already exists - for developing purposes
 ssh-keyscan -H "${CONTAINER_IP}" >> ~/.ssh/known_hosts
-```
 
-# Cleanup ALL
-
-Stop & remove ALL! containers & this image
-```bash
-docker stop $(docker ps -a -q)
-docker rm $(docker ps -a -q)
-docker rmi "${IMAGE_NAME}"
-```
-
-# Troubleshooting
-```bash
-ssh -Q key
 ssh -vvv "$IMAGE_SSH_USERNAME@$CONTAINER_IP" -i ssh_keys/docker_key
-```
-
-# TODO
-* Install DBT
