@@ -1,4 +1,4 @@
-FROM ubuntu:latest AS ubuntu_sshd_dbt
+FROM ubuntu:latest AS ubuntu_sshd
 
 ARG USERNAME
 ENV DEBIAN_FRONTEND noninteractive
